@@ -1,102 +1,100 @@
-{% extends 'bookstore/base.html' %}
-
-{% block title %}{{ book.title }} - Book Details{% endblock %}
-
-{% block content %}
+{% extends 'bookstore/base.html' %} {% block title %}{{ book.title }} - Book
+Details{% endblock %} {% block content %}
 <div class="container my-5">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" 
-                                 class="img-fluid rounded shadow" 
-                                 style="max-height: 400px; width: auto;" 
-                                 alt="{{ book.title }} cover">
-                        {% else %}
-                            <div class="bg-primary text-white rounded p-5 mb-3" style="height: 300px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-book fa-4x"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="price-tag mb-3">₹{{ book.price }}</div>
-                    {% if book.stock_quantity > 0 %}
-                        <button class="btn btn-success btn-lg w-100 mb-2">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                        <small class="text-success">{{ book.stock_quantity }} in stock</small>
-                    {% else %}
-                        <button class="btn btn-secondary btn-lg w-100 mb-2" disabled>
-                            <i class="fas fa-times"></i> Out of Stock
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        <div class="col-md-8">
-            <h1 class="display-5 mb-3">{{ book.title }}</h1>
-            
-            <div class="row mb-4">
-                <div class="col-sm-6">
-                    <strong>Author:</strong>
-                    <a href="{% url 'author_detail' book.author.id %}" class="text-decoration-none">
-                        {{ book.author.name }}
-                    </a>
-                </div>
-                {% if book.isbn %}
-                <div class="col-sm-6">
-                    <strong>ISBN:</strong> {{ book.isbn }}
-                </div>
-                {% endif %}
-            </div>
-            
-            {% if book.publication_date %}
-            <div class="mb-4">
-                <strong>Publication Date:</strong> {{ book.publication_date|date:"F d, Y" }}
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <div class="mb-4">
+            {% if book.cover_image %}
+            <img
+              src="{{ book.cover_image.url }}"
+              class="img-fluid rounded shadow"
+              style="max-height: 400px; width: auto"
+              alt="{{ book.title }} cover"
+            />
+            {% else %}
+            <div
+              class="bg-primary text-white rounded p-5 mb-3"
+              style="
+                height: 300px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <i class="fas fa-book fa-4x"></i>
             </div>
             {% endif %}
-            
-            <div class="mb-4">
-                <strong>Categories:</strong>
-                {% for category in book.categories.all %}
-                    <a href="{% url 'category_detail' category.id %}" class="text-decoration-none">
-                        <span class="badge bg-info me-1">{{ category.name }}</span>
-                    </a>
-                {% endfor %}
-            </div>
-            
-            <div class="mb-4">
-                <h5>About the Author</h5>
-                <p class="text-muted">{{ book.author.bio|truncatewords:30 }}</p>
-                <a href="{% url 'author_detail' book.author.id %}" class="btn btn-outline-primary btn-sm">
-                    View Author Profile
-                </a>
-            </div>
+          </div>
+
+          <div class="price-tag mb-3">₹{{ book.price }}</div>
+          {% if book.stock_quantity > 0 %}
+          <!-- FIXED: Working Add to Cart Form -->
+          <form method="post" action="{% url 'add_to_cart' book.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-lg w-100 mb-2">
+              <i class="fas fa-shopping-cart"></i> Add to Cart
+            </button>
+          </form>
+          <small class="text-success">{{ book.stock_quantity }} in stock</small>
+          {% else %}
+          <button class="btn btn-secondary btn-lg w-100 mb-2" disabled>
+            <i class="fas fa-times"></i> Out of Stock
+          </button>
+          {% endif %}
         </div>
+      </div>
     </div>
+
+    <div class="col-md-8">
+      <h1 class="display-5 mb-3">{{ book.title }}</h1>
+
+      <div class="row mb-4">
+        <div class="col-sm-6">
+          <strong>Author:</strong>
+          <a
+            href="{% url 'author_detail' book.author.id %}"
+            class="text-decoration-none"
+          >
+            {{ book.author.name }}
+          </a>
+        </div>
+        {% if book.isbn %}
+        <div class="col-sm-6"><strong>ISBN:</strong> {{ book.isbn }}</div>
+        {% endif %}
+      </div>
+
+      {% if book.publication_date %}
+      <div class="mb-4">
+        <strong>Publication Date:</strong> {{ book.publication_date|date:"F d,
+        Y" }}
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        <strong>Categories:</strong>
+        {% for category in book.categories.all %}
+        <a
+          href="{% url 'category_detail' category.id %}"
+          class="text-decoration-none"
+        >
+          <span class="badge bg-info me-1">{{ category.name }}</span>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="mb-4">
+        <h5>About the Author</h5>
+        <p class="text-muted">{{ book.author.bio|truncatewords:30 }}</p>
+        <a
+          href="{% url 'author_detail' book.author.id %}"
+          class="btn btn-outline-primary btn-sm"
+        >
+          View Author Profile
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
