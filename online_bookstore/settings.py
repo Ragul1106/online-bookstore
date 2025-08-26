@@ -10,37 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+"""
+Django settings for online_bookstore project.
+"""
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&-6dco4&jg12w_)zh@4sn=ig9')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# FIXED: Use environment variable for DEBUG
-DEBUG = os.getenv('DEBUG', 'True') == 'True'  
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# FIXED: Use environment variable for allowed hosts
+# ALLOWED_HOSTS configuration
 ALLOWED_HOSTS = []
 if DEBUG:
-    # Development
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
-    # Production - get from environment variable
     hosts_env = os.getenv('ALLOWED_HOSTS', '')
     if hosts_env:
         ALLOWED_HOSTS = [host.strip() for host in hosts_env.split(',') if host.strip()]
-        
-        render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+    
+    render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
     if render_host:
         ALLOWED_HOSTS.append(render_host)
 
@@ -57,10 +52,8 @@ INSTALLED_APPS = [
     'bookstore',
 ]
 
-# Only add Cloudinary and debug toolbar in specific conditions
-if DEBUG:
-    INSTALLED_APPS.append('debug_toolbar')
-else:
+# Only add Cloudinary in production
+if not DEBUG:
     INSTALLED_APPS.extend([
         'cloudinary_storage',
         'cloudinary',
@@ -76,10 +69,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-# Only add debug toolbar middleware in development
-if DEBUG:
-    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'online_bookstore.urls'
 
@@ -132,22 +121,23 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files configuration
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files configuration
 if DEBUG:
-    # Development (Local) - Use local media files
+    # Development - local files
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 else:
-    # Production (Render) - Use Cloudinary
-    import cloudinary
-    import cloudinary.uploader
-    import cloudinary.api
+    # Production - Cloudinary
+    MEDIA_URL = '/media/'  # Keep this for admin compatibility
+    MEDIA_ROOT = BASE_DIR / 'media'  # Keep this for admin compatibility
     
+    # Cloudinary configuration
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
         'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
@@ -155,18 +145,12 @@ else:
     }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Debug Toolbar Settings (only in development)
+# Debug settings
 if DEBUG:
-    INTERNAL_IPS = [
-        "127.0.0.1",
-    ]
+    INTERNAL_IPS = ["127.0.0.1"]
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
