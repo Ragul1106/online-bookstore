@@ -1,0 +1,105 @@
+{% extends 'bookstore/base.html' %} {% block title %}Shopping Cart - Online
+Bookstore{% endblock %} {% block content %}
+<div class="container my-5">
+  <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+
+  {% if cart_items %}
+  <div class="row">
+    <div class="col-md-8">
+      {% for item in cart_items %}
+      <div class="card mb-3">
+        <div class="row g-0">
+          <div class="col-md-2">
+            {% if item.book.cover_image %}
+            <img
+              src="{{ item.book.cover_image.url }}"
+              class="img-fluid rounded-start"
+              alt="{{ item.book.title }}"
+            />
+            {% else %}
+            <div
+              class="bg-light d-flex align-items-center justify-content-center h-100"
+            >
+              <i class="fas fa-book fa-2x text-muted"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-10">
+            <div class="card-body">
+              <h5 class="card-title">{{ item.book.title }}</h5>
+              <p class="text-muted">by {{ item.book.author.name }}</p>
+              <p class="card-text">Price: ₹{{ item.book.price }}</p>
+
+              <!-- Quantity Update Form -->
+              <form
+                method="post"
+                action="{% url 'update_cart' item.id %}"
+                class="d-inline"
+              >
+                {% csrf_token %}
+                <div
+                  class="input-group"
+                  style="width: 150px; display: inline-flex"
+                >
+                  <input
+                    type="number"
+                    name="quantity"
+                    class="form-control"
+                    value="{{ item.quantity }}"
+                    min="1"
+                    max="{{ item.book.stock_quantity }}"
+                  />
+                  <button type="submit" class="btn btn-outline-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+
+              <!-- Remove Button -->
+              <form
+                method="post"
+                action="{% url 'remove_from_cart' item.id %}"
+                class="d-inline ms-2"
+              >
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                  <i class="fas fa-trash"></i> Remove
+                </button>
+              </form>
+
+              <p class="mt-2">
+                <strong>Subtotal: ₹{{ item.subtotal }}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5>Order Summary</h5>
+          <p>Total Items: {{ cart.total_items }}</p>
+          <h4>Total: ₹{{ cart.total_price }}</h4>
+          <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-100">
+            <i class="fas fa-credit-card"></i> Proceed to Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center">
+    <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+    <h3>Your cart is empty</h3>
+    <p>Start shopping to add items to your cart!</p>
+    <a href="{% url 'book_list' %}" class="btn btn-primary"
+      >Continue Shopping</a
+    >
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

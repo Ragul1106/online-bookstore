@@ -1,0 +1,54 @@
+{% extends 'bookstore/base.html' %}
+
+{% block title %}Authors - Online Bookstore{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1><i class="fas fa-users"></i> All Authors</h1>
+            <p class="text-muted">Discover books from our featured authors</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for author in authors %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <!-- Fix the image display logic -->
+                    {% if author.photo %}
+                        <img src="{{ author.photo.url }}" 
+                             class="rounded-circle mb-3" 
+                             style="width: 80px; height: 80px; object-fit: cover;" 
+                             alt="{{ author.name }} photo">
+                    {% else %}
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px; font-size: 2rem;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="card-title">{{ author.name }}</h5>
+                    <p class="text-muted">{{ author.bio|truncatewords:20 }}</p>
+                    <div class="mt-auto">
+                        <span class="badge bg-info mb-2">{{ author.books.count }} book{{ author.books.count|pluralize }}</span>
+                        <div>
+                            <a href="{% url 'author_detail' author.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i> No authors found.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

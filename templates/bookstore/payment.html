@@ -1,0 +1,54 @@
+{% extends 'bookstore/base.html' %}
+
+{% block title %}Payment - Online Bookstore{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3><i class="fas fa-credit-card"></i> Payment</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Order Total: ₹{{ order.total_amount }}</strong>
+                    </div>
+                    
+                    <!-- Payment Options -->
+                    <div class="mb-4">
+                        <h5>Select Payment Method:</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                <i class="fas fa-money-bill"></i> Cash on Delivery
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                            <label class="form-check-label" for="card">
+                                <i class="fas fa-credit-card"></i> Credit/Debit Card
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="upi" value="upi">
+                            <label class="form-check-label" for="upi">
+                                <i class="fas fa-mobile-alt"></i> UPI Payment
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- For now, simple completion -->
+                    <a href="{% url 'order_success' order.id %}" class="btn btn-success btn-lg w-100">
+                        <i class="fas fa-check"></i> Complete Order
+                    </a>
+                    
+                    <a href="{% url 'view_cart' %}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="fas fa-arrow-left"></i> Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
