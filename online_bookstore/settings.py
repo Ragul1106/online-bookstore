@@ -30,7 +30,12 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&
 DEBUG = os.getenv('DEBUG', 'True') == 'True'  
 
 # FIXED: Use environment variable for allowed hosts
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+if DEBUG:
+    # Development
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+else:
+    # Production
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -81,7 +86,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',  # FIXED: Added media context processor
+                'django.template.context_processors.media',  
             ],
         },
     },
