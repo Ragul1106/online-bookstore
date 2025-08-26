@@ -248,3 +248,17 @@ def update_order_status(request, order_id):
     
     return redirect('order_management')
 
+def track_order(request):
+    """Customer order tracking"""
+    order = None
+    
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        email = request.POST.get('email')
+        
+        try:
+            order = Order.objects.get(id=order_id, email=email)
+        except Order.DoesNotExist:
+            messages.error(request, 'Order not found. Please check your order ID and email.')
+    
+    return render(request, 'bookstore/track_order.html', {'order': order})
