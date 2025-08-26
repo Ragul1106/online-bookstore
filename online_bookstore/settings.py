@@ -30,12 +30,19 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&
 DEBUG = os.getenv('DEBUG', 'True') == 'True'  
 
 # FIXED: Use environment variable for allowed hosts
+ALLOWED_HOSTS = []
 if DEBUG:
     # Development
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
-    # Production
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+    # Production - get from environment variable
+    hosts_env = os.getenv('ALLOWED_HOSTS', '')
+    if hosts_env:
+        ALLOWED_HOSTS = [host.strip() for host in hosts_env.split(',') if host.strip()]
+        
+        render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+    if render_host:
+        ALLOWED_HOSTS.append(render_host)
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,6 +68,7 @@ else:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -126,8 +134,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files configuration
 if DEBUG:
@@ -146,6 +154,9 @@ else:
         'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
     }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
