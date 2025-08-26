@@ -19,40 +19,42 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&-6dco4&jg12w_)zh@4sn=ig9'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&-6dco4&jg12w_)zh@4sn=ig9')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# FIXED: Use environment variable for DEBUG
+DEBUG = os.getenv('DEBUG', 'True') == 'True'  
 
-ALLOWED_HOSTS = ["online-bookstore-nroa.onrender.com", "127.0.0.1", "localhost"]
-
+# FIXED: Use environment variable for allowed hosts
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles','crispy_forms',
-    
-    'cloudinary_storage',
-    'cloudinary',
-    
+    'django.contrib.staticfiles',
+    'crispy_forms',
     'crispy_bootstrap5',
-    'debug_toolbar',
- 
     'bookstore',
 ]
 
+# Only add Cloudinary and debug toolbar in specific conditions
+if DEBUG:
+    INSTALLED_APPS.append('debug_toolbar')
+else:
+    INSTALLED_APPS.extend([
+        'cloudinary_storage',
+        'cloudinary',
+    ])
+
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -61,6 +63,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Only add debug toolbar middleware in development
+if DEBUG:
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
 ROOT_URLCONF = 'online_bookstore.urls'
 
@@ -75,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',  # FIXED: Added media context processor
             ],
         },
     },
@@ -82,10 +89,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'online_bookstore.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -93,10 +97,7 @@ DATABASES = {
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,46 +113,44 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Asia/Kolkata'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Media files configuration
+if DEBUG:
+    # Development (Local) - Use local media files
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    # Production (Render) - Use Cloudinary
+    import cloudinary
+    import cloudinary.uploader
+    import cloudinary.api
+    
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+# Debug Toolbar Settings (only in development)
+if DEBUG:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
-# For production (Render)
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
