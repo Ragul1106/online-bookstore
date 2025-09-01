@@ -26,7 +26,6 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-i34%*%ymgar!@@tplv(c%d*8t&
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# ALLOWED_HOSTS configuration
 ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
@@ -39,7 +38,7 @@ else:
     if render_host:
         ALLOWED_HOSTS.append(render_host)
 
-# Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,7 +51,6 @@ INSTALLED_APPS = [
     'bookstore',
 ]
 
-# Only add Cloudinary in production
 if not DEBUG:
     INSTALLED_APPS.extend([
         'cloudinary_storage',
